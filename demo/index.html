@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rewind demo — resumable LLM streams</title>
+<style>
+  :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+  body { max-width: 46rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  form { display: flex; gap: .5rem; }
+  input { flex: 1; padding: .5rem; font: inherit; }
+  button { padding: .5rem .8rem; font: inherit; cursor: pointer; }
+  #answer { white-space: pre-wrap; min-height: 8rem; padding: 1rem; margin: 1rem 0; border: 1px solid #8884; border-radius: .5rem; }
+  #controls { display: flex; gap: .5rem; flex-wrap: wrap; }
+  #log { font: 12px ui-monospace, monospace; color: #888; white-space: pre-wrap; }
+  .status { font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Rewind</h1>
+<p>An LLM answer that survives dropped connections and page reloads. While it streams, try the buttons below.</p>
+<form id="ask">
+  <input id="prompt" value="Why do streams need to be resumable?" aria-label="Prompt">
+  <button>Ask</button>
+</form>
+<div id="answer" aria-live="polite"></div>
+<div id="controls">
+  <button id="drop" disabled>Drop the connection</button>
+  <button id="reload" disabled>Reload the page</button>
+  <button id="stop" disabled>Stop the generation</button>
+  <span>Status: <span id="status" class="status">idle</span></span>
+</div>
+<pre id="log"></pre>
+<script type="module">
+import { startStream, readStream, fetchSnapshot } from '/lib/client/index.js'
+
+const $ = (id) => document.getElementById(id)
+const KEY = 'rewind-demo'
+let reading // AbortController of the current connection
+
+const log = (msg) => { $('log').textContent += `${new Date().toLocaleTimeString()}  ${msg}\n` }
+const save = (state) => sessionStorage.setItem(KEY, JSON.stringify(state))
+const saved = () => JSON.parse(sessionStorage.getItem(KEY) ?? 'null')
+const setStatus = (s) => {
+  $('status').textContent = s
+  const live = s === 'streaming' || s === 'reconnecting'
+  for (const id of ['drop', 'reload', 'stop']) $(id).disabled = !live
+}
+
+function apply(e) {
+  if (e.event === 'delta') $('answer').textContent += JSON.parse(e.data).text
+  if (e.event === 'stream.end') setStatus(JSON.parse(e.data).reason)
+  if (e.event === 'stream.error') setStatus('error: ' + JSON.parse(e.data).message)
+}
+
+// Follows a stream; every event moves the saved cursor forward.
+async function follow(url, events) {
+  const state = saved()
+  try {
+    for await (const e of events) {
+      apply(e)
+      save({ url, cursor: e.id, text: $('answer').textContent })
+    }
+    if ($('status').textContent === 'streaming' || $('status').textContent === 'reconnecting') setStatus('complete')
+  } catch (err) {
+    if (err?.name === 'AbortError') return
+    setStatus('failed: ' + err.message)
+  }
+}
+
+const options = (cursor = 0) => {
+  reading = new AbortController()
+  return {
+    cursor,
+    signal: reading.signal,
+    onReconnect: (i) => { setStatus('reconnecting'); log(`reconnecting from event ${i.cursor} in ${i.delayMs} ms (${i.reason})`) },
+  }
+}
+
+$('ask').onsubmit = async (ev) => {
+  ev.preventDefault()
+  reading?.abort()
+  $('answer').textContent = ''
+  setStatus('streaming')
+  const s = await startStream('/chat', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ prompt: $('prompt').value }),
+  }, options())
+  log(`started ${new URL(s.url).pathname}`)
+  save({ url: s.url, cursor: 0, text: '' })
+  follow(s.url, s.events)
+}
+
+$('drop').onclick = () => {
+  const { url, cursor } = saved()
+  reading.abort()
+  log(`connection dropped after event ${cursor}; resuming`)
+  setStatus('streaming')
+  follow(url, readStream(url, options(cursor)))
+}
+
+$('reload').onclick = () => location.reload()
+
+$('stop').onclick = async () => {
+  const res = await fetch(saved().url, { method: 'DELETE' })
+  log(`DELETE → ${res.status}`)
+}
+
+// After a reload: render what we had, catch up with a snapshot, then follow.
+const state = saved()
+if (state) {
+  $('answer').textContent = state.text
+  try {
+    const snap = await fetchSnapshot(state.url, state.cursor)
+    snap.events.forEach(apply)
+    const cursor = snap.last_id
+    save({ url: state.url, cursor, text: $('answer').textContent })
+    log(`reloaded: had ${state.cursor} events, caught up to ${cursor} from a snapshot`)
+    if (snap.status === 'live') {
+      setStatus('streaming')
+      follow(state.url, readStream(state.url, options(cursor)))
+    } else if ($('status').textContent === 'idle') {
+      setStatus(snap.status)
+    }
+  } catch (err) {
+    log(`previous stream is gone (${err.message})`)
+    sessionStorage.removeItem(KEY)
+  }
+}
+</script>
+</body>
+</html>

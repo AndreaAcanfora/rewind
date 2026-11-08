@@ -1,0 +1,52 @@
+{
+  "name": "rewind-stream",
+  "version": "0.1.0",
+  "description": "Resumable Stream Protocol: LLM token streams that survive dropped connections, page reloads and multiple tabs. Spec, server, client and conformance suite.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Andrea Acanfora",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndreaAcanfora/rewind.git"
+  },
+  "keywords": [
+    "sse",
+    "server-sent-events",
+    "llm",
+    "streaming",
+    "resumable",
+    "ai",
+    "protocol",
+    "eventsource"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "files": [
+    "dist",
+    "SPEC.md"
+  ],
+  "bin": {
+    "rewind-conform": "dist/conformance/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./server": "./dist/server/index.js",
+    "./server/node": "./dist/server/node.js",
+    "./client": "./dist/client/index.js",
+    "./conformance": "./dist/conformance/index.js"
+  },
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "e2e": "npm run build && node test/e2e/browser.ts",
+    "demo": "npm run build && node demo/server.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "playwright": "^1.65.0",
+    "typescript": "^5.9.0"
+  }
+}
