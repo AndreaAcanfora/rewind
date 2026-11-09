@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rewind-stream"
+version = "0.1.0"
+description = "Resumable Stream Protocol for Python: LLM token streams that survive dropped connections, page reloads and multiple tabs (ASGI server, memory and Redis stores)"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Andrea Acanfora" }]
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["sse", "server-sent-events", "llm", "streaming", "resumable", "asgi", "fastapi", "redis"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Framework :: AsyncIO",
+  "Framework :: FastAPI",
+  "Topic :: Internet :: WWW/HTTP",
+]
+
+[project.optional-dependencies]
+starlette = ["starlette>=0.37"]
+test = ["starlette>=0.37", "httpx>=0.27", "uvicorn>=0.30"]
+
+[project.urls]
+Homepage = "https://github.com/AndreaAcanfora/rewind"
+Specification = "https://github.com/AndreaAcanfora/rewind/blob/master/SPEC.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py310"

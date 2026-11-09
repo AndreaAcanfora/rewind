@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Python server (`python/`): ASGI app, `start` for Starlette/FastAPI, `MemoryStore` and a `RedisStore` compatible with the TypeScript one. Passes the TypeScript conformance suite in CI.
+
 ## 0.2.0 — 2026-11-09
 
 - `RedisStore`: streams shared by every server instance, with `nodeRedis` and `ioredis` adapters. Cancellation works across instances, and a stream whose producer is gone is ended.

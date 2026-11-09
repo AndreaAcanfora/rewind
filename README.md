@@ -113,6 +113,13 @@ Cancelling from any instance stops the producer wherever it runs.
 with the same rules as the request that started the stream. Stream IDs from
 `start` have 128 random bits.
 
+## Python server
+
+[`rewind-stream` for Python](python/) is an ASGI implementation (FastAPI,
+Starlette, Django, Litestar) with memory and Redis stores. It passes the same
+conformance suite, and its Redis layout matches the TypeScript one, so Python
+and Node instances can share streams.
+
 ## Client
 
 ```ts
@@ -194,7 +201,6 @@ a conformance suite.
 
 ## Roadmap
 
-- A Python server (FastAPI / Starlette).
 - Optional compaction: merge many small deltas when replaying a long stream.
 
 Feedback on the spec is the most useful contribution right now: open an issue.
