@@ -19,16 +19,16 @@ from rewind_stream.starlette import start
 
 app = FastAPI()
 client = AsyncAnthropic()
-store = MemoryStore()                      # RedisStore(...) for several instances
-app.mount("/streams", StreamApp(store))    # GET (SSE or snapshot), DELETE (cancel)
+store = MemoryStore()  # RedisStore(...) for several instances
+app.mount("/streams", StreamApp(store))  # GET (SSE or snapshot), DELETE (cancel)
+
 
 @app.post("/chat")
 async def chat(request: Request):
     prompt = (await request.json())["prompt"]
 
-    async def answer(cancelled):           # set when a client cancels
-        async with client.messages.stream(model="claude-sonnet-5-5", max_tokens=1024,
-                                          messages=[{"role": "user", "content": prompt}]) as s:
+    async def answer(cancelled):  # set when a client cancels
+        async with client.messages.stream(model="claude-sonnet-5-5", max_tokens=1024, messages=[{"role": "user", "content": prompt}]) as s:
             async for text in s.text_stream:
                 if cancelled.is_set():
                     return
