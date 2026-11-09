@@ -115,7 +115,7 @@ with the same rules as the request that started the stream. Stream IDs from
 
 ## Python server
 
-[`rewind-stream` for Python](python/) is an ASGI implementation (FastAPI,
+[`rewind-stream` for Python](python/) (`pip install rewind-stream`) is an ASGI implementation (FastAPI,
 Starlette, Django, Litestar) with memory and Redis stores. It passes the same
 conformance suite, and its Redis layout matches the TypeScript one, so Python
 and Node instances can share streams.
