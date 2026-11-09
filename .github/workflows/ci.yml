@@ -46,3 +46,25 @@ jobs:
           loc=$(curl -s -D - -o /dev/null -X POST -H 'content-type: application/json' -d '{"prompt":"ci"}' http://127.0.0.1:3000/chat | tr -d '\r' | awk 'tolower($1)=="stream-location:"{print $2}')
           sleep 8
           node dist/conformance/cli.js "http://127.0.0.1:3000$loc"
+
+  redis:
+    name: RedisStore against Redis 7
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 2s --health-timeout 2s --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Tests, including RedisStore
+        env:
+          REDIS_URL: redis://localhost:6379
+        run: npm test
+

@@ -1,6 +1,6 @@
 {
   "name": "rewind-stream",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Resumable Stream Protocol: LLM token streams that survive dropped connections, page reloads and multiple tabs. Spec, server, client and conformance suite.",
   "type": "module",
   "license": "MIT",
@@ -10,14 +10,15 @@
     "url": "git+https://github.com/AndreaAcanfora/rewind.git"
   },
   "keywords": [
-    "sse",
-    "server-sent-events",
-    "llm",
-    "streaming",
-    "resumable",
     "ai",
+    "eventsource",
+    "llm",
     "protocol",
-    "eventsource"
+    "redis",
+    "resumable",
+    "server-sent-events",
+    "sse",
+    "streaming"
   ],
   "engines": {
     "node": ">=22.18"

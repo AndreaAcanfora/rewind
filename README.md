@@ -91,8 +91,23 @@ http.createServer(toNodeListener(handler)).listen(3000)
 ```
 
 `MemoryStore` keeps streams in the process, which suits a single server.
-Multiple instances need a shared store: implement the `Store` interface
-(a Redis Streams store is on the roadmap).
+With several instances, or serverless functions, use `RedisStore`: a
+generation started on one instance can be read and resumed through any
+other.
+
+```ts
+import { createClient } from 'redis'
+import { RedisStore, nodeRedis } from 'rewind-stream/server'
+
+const redis = await createClient({ url: process.env.REDIS_URL }).connect()
+const store = new RedisStore(nodeRedis(redis))
+```
+
+`ioredis(client)` adapts ioredis; any other client works by implementing
+`{ command(args: string[]): Promise<unknown> }`. The store uses only basic
+commands (no Lua, no streams, no blocking reads), keeps finished streams for
+5 minutes and lets readers poll every 100 ms (`retentionMs`, `pollMs`).
+Cancelling from any instance stops the producer wherever it runs.
 
 **Authorization is up to you:** check the request before calling the handler,
 with the same rules as the request that started the stream. Stream IDs from
@@ -179,7 +194,6 @@ a conformance suite.
 
 ## Roadmap
 
-- Redis Streams store, for several server instances.
 - A Python server (FastAPI / Starlette).
 - Optional compaction: merge many small deltas when replaying a long stream.
 
