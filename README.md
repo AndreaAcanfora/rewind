@@ -1,6 +1,7 @@
 # Rewind: the Resumable Stream Protocol
 
 [![CI](https://github.com/AndreaAcanfora/rewind/actions/workflows/ci.yml/badge.svg)](https://github.com/AndreaAcanfora/rewind/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/rewind-stream)](https://www.npmjs.com/package/rewind-stream)
 
 LLM answers that survive dropped connections, page reloads and multiple tabs.
 An open wire protocol on top of Server-Sent Events, with a TypeScript server,
@@ -159,10 +160,8 @@ along with the native `EventSource`.
 
 ## Install
 
-The package is not on npm yet. Install it from GitHub:
-
 ```sh
-npm install github:AndreaAcanfora/rewind
+npm install rewind-stream
 ```
 
 Node 22.18 or later. Browsers: any with `fetch` streams and `TextDecoderStream`.
