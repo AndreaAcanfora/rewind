@@ -2,6 +2,9 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { MemoryStore, produce, StreamClosedError } from '../src/server/index.ts'
 import { sleep, words } from './helpers.ts'
+import { storeContract } from './store-contract.ts'
+
+storeContract('MemoryStore', () => new MemoryStore())
 
 async function collect<T>(it: AsyncIterable<T>): Promise<T[]> {
   const out: T[] = []
