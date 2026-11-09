@@ -164,7 +164,8 @@ along with the native `EventSource`.
 npm install rewind-stream
 ```
 
-Node 22.18 or later. Browsers: any with `fetch` streams and `TextDecoderStream`.
+Node 22.18 or later. Releases are published from GitHub Actions with npm
+trusted publishing and provenance. Browsers: any with `fetch` streams and `TextDecoderStream`.
 
 ## Related work
 
