@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — 2026-11-09
 
 - Resumable Stream Protocol specification, version 0.1 (draft).
 - Server: Fetch API handler (SSE, snapshots, cancellation), `start`, `produce`, in-memory store, `node:http` adapter.
