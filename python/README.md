@@ -5,6 +5,10 @@ for Python servers: LLM answers that survive dropped connections, page
 reloads and multiple tabs. An ASGI app (FastAPI, Starlette, Django,
 Litestar…), memory and Redis stores, no required dependencies.
 
+```sh
+pip install rewind-stream            # add [starlette] for the FastAPI / Starlette helper
+```
+
 Clients are the same as for the TypeScript server: the browser's native
 `EventSource`, or the [`rewind-stream`](https://www.npmjs.com/package/rewind-stream)
 npm client with automatic resume.
